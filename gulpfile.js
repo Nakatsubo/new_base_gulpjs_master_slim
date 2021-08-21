@@ -17,9 +17,11 @@ const GULP_UGLIFY       = require('gulp-uglify-es').default
 const GULP_SLIM         = require('gulp-slim')
 const GULP_IMAGE        = require('gulp-image')
 const GULP_CHANGED      = require('gulp-changed')
-// const htmlhint = require('gulp-htmlhint')
-// const csslint = require('gulp-csslint')
-// const eslint = require('gulp-eslint')
+const GULP_HTMLLINT     = require('gulp-htmllint')
+const FANCY_LOG         = require('fancy-log')
+const ANSI_COLORS       = require('ansi-colors')
+const GULP_CSSLINT = require('gulp-csslint')
+const GULP_ESLINT = require('gulp-eslint')
 
 
 /*
@@ -147,34 +149,37 @@ const defaultTask = () =>
 
 exports.default = defaultTask
 
+
 /*
 * lint Task
 */
-// lint
-// function htmlLint() {
-//   return gulp.src('dist/**/*.html')
-//     .pipe(htmlhint())
-//     .pipe(htmlhint.reporter());
-// }
+const lintHtml = () =>
+  src(GULP_PATHS.OUT_SLIM)
+  .pipe(GULP_HTMLLINT({}, htmllintReporter))
 
-// function cssLint() {
-//   return gulp.src('dist/assets/**/*.css')
-//   .pipe(csslint())
-//   .pipe(csslint.formatter());
-// }
+const htmllintReporter = (filepath, issues) => {
+  if (issues.length > 0) {
+    issues.forEach((issue) => {
+      FANCY_LOG(ANSI_COLORS.cyan('[gulp-htmllint] ') + ANSI_COLORS.white(filepath + ' [' + issue.line + ',' + issue.column + ']: ') + ANSI_COLORS.red('(' + issue.code + ') ' + issue.msg))
+    })
+    process.exitCode = 1
+  }
+}
 
-// function esLint() {
-//   return gulp.src('dist/assets/**/*.js')
-//   .pipe(eslint({useEslintrc: true}))
-//   .pipe(eslint.format())
-//   .pipe(eslint.failAfterError())
-// }
+const lintCss = () => 
+  src(GULP_PATHS.OUT_CSS)
+  .pipe(GULP_CSSLINT())
+  .pipe(GULP_CSSLINT.formatter())
 
-// gulp.task('html-lint', htmlLint);
-// gulp.task("css-lint", cssLint);
-// gulp.task('eslint', esLint);
-// gulp.task('lint',
-// gulp.series(
-//   htmlLint, cssLint, esLint
-//   )
-// );
+const lintEs = () => 
+  src(GULP_PATHS.OUT_JS)
+  .pipe(GULP_ESLINT())
+  .pipe(GULP_ESLINT.format())
+  .pipe(GULP_ESLINT.failAfterError())
+  
+const lintTask = () =>
+  lintHtml()
+  lintCss()
+  lintEs()
+
+exports.lint = lintTask
