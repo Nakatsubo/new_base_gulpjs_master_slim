@@ -15,13 +15,12 @@ const GULP_AUTOPREFIXER = require('gulp-autoprefixer')
 const GULP_BABEL        = require('gulp-babel')
 const GULP_UGLIFY       = require('gulp-uglify-es').default
 const GULP_SLIM         = require('gulp-slim')
-// const GULP_IMAGEMIN     = require('gulp-imagemin')
-// const IMAGEMIN_MOZJPEG  = require('imagemin-mozjpeg')
-// const IMAGEMIN_PNGQUANT = require('imagemin-pngquant')
-// const GULP_CHANGED      = require('gulp-changed')
+const GULP_IMAGE        = require('gulp-image')
+const GULP_CHANGED      = require('gulp-changed')
 // const htmlhint = require('gulp-htmlhint')
 // const csslint = require('gulp-csslint')
 // const eslint = require('gulp-eslint')
+
 
 /*
  * Path Settings
@@ -39,6 +38,7 @@ const GULP_PATHS = {
   OUT_IMG: 'dist/assets/img',
 };
 
+
 /*
  * Browser-sync Task
  */
@@ -52,6 +52,7 @@ const watchBrowserSync = () => watch(GULP_PATHS.ROOT_DIR, browserSyncAbility)
 
 // const browserReloadAbility = () =>
 //   GULP_BROWSER_SYNC.reload()
+
 
 /*
  * Slim Task
@@ -68,6 +69,7 @@ const compileSlim = () =>
   .pipe(GULP_BROWSER_SYNC.stream())
 // 相対パスで外部ファイルがうまく読み込めない
 
+
 /*
 * Scss Task
 */
@@ -82,6 +84,7 @@ const compileSass = () =>
   .pipe(dest(GULP_PATHS.OUT_CSS))
   .pipe(GULP_BROWSER_SYNC.stream())
 
+
 /*
 * Javascript Task
 */
@@ -95,25 +98,26 @@ const compileJs = () =>
   .pipe(dest(GULP_PATHS.OUT_JS))
   .pipe(GULP_BROWSER_SYNC.stream())
 
+
 /*
 * Images Task
 */
-// const compressImg = () =>
-//   src(GULP_PATHS.SRC_IMG)
-//   .pipe(GULP_CHANGED(GULP_PATHS.OUT_IMG))
-//   .pipe(
-//     GULP_IMAGEMIN([
-//       IMAGEMIN_PNGQUANT({
-//         quality: [.60, .70], // 60~70
-//         speed: 1
-//       }),
-//       IMAGEMIN_MOZJPEG({quality: 65}),
-//       GULP_IMAGEMIN.svgo(),
-//       GULP_IMAGEMIN.optipng(),
-//       GULP_IMAGEMIN.gifsicle({optimizationLevel: 3})
-//     ])
-//   )
-//   .pipe(dest(GULP_PATHS.OUT_IMG))
+const compressImg = () =>
+  src(GULP_PATHS.SRC_IMG)
+  .pipe(GULP_CHANGED(GULP_PATHS.OUT_IMG))
+  .pipe(GULP_IMAGE({
+    pngquant: true,
+    optipng: false,
+    zopflipng: true,
+    jpegRecompress: false,
+    mozjpeg: true,
+    gifsicle: true,
+    svgo: true,
+    concurrent: 10,
+    quiet: true // defaults to false
+  }))
+  .pipe(dest(GULP_PATHS.OUT_IMG))
+
 
 /*
 * Watch Files
@@ -121,7 +125,7 @@ const compileJs = () =>
 const watchSassFiles = () => watch(GULP_PATHS.SRC_SASS, compileSass)
 const watchJsFiles = () => watch(GULP_PATHS.SRC_JS, compileJs)
 const watchSlimFiles = () => watch(GULP_PATHS.SRC_SLIM, compileSlim)
-// const watchImgFiles = () => watch(GULP_PATHS.SRC_IMG, compressImg)
+const watchImgFiles = () => watch(GULP_PATHS.SRC_IMG, compressImg)
 
 
 /*
@@ -131,7 +135,7 @@ const watchStaticContents = () =>
   watchSassFiles()
   watchJsFiles()
   watchSlimFiles()
-  // watchImgFiles()
+  watchImgFiles()
 
 const defaultTask = () =>
   watchBrowserSync()
@@ -139,7 +143,7 @@ const defaultTask = () =>
   compileSass()
   compileJs()
   compileSlim()
-  // compressImg()
+  compressImg()
 
 exports.default = defaultTask
 
