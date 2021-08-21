@@ -20,8 +20,8 @@ const GULP_CHANGED      = require('gulp-changed')
 const GULP_HTMLLINT     = require('gulp-htmllint')
 const FANCY_LOG         = require('fancy-log')
 const ANSI_COLORS       = require('ansi-colors')
-const GULP_CSSLINT = require('gulp-csslint')
-const GULP_ESLINT = require('gulp-eslint')
+const GULP_CSSLINT      = require('gulp-csslint')
+const GULP_ESLINT       = require('gulp-eslint')
 
 
 /*
